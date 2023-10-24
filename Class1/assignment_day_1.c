@@ -18,7 +18,7 @@ int calSumFromInput(int quantity){
 	return sum;
 }
 
-//ex2 - calculate sum of ecen and odd from user input----------
+//ex2 - calculate sum of even and odd from user input----------
 
 void calSumOddAndEvenFromInput(int quantity){
 	int evenSum = 0;
