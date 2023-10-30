@@ -1,5 +1,4 @@
 #include<stdio.h>
-#include<string.h>
 
 int withdraw(int account)
 {
@@ -39,14 +38,9 @@ int main()
 	char user[] = "admin";
 	char password[] = "123456";
 	
-	char inputUser[5];
-	char inputPassword[6];
+	char inputUser[10];
+	char inputPassword[10];
 	
-//		printf("Enter your user name: ");
-//		scanf("%[^\n]%*c", inputUser);
-//		printf("Your user: %s \n",inputUser);
-//		printf("Enter your user password: ");
-//		scanf("%[^\n]%*c", inputPassword);
 	
 	while( isRunning != 0 )
 	{
@@ -54,14 +48,18 @@ int main()
 		printf("1 - Login \n");
 		printf("0 - Close \n");
 		printf("Enter your choice: ");
+//		scanf("%d%*c", &choice);
 		scanf("%d", &choice);
+		fflush(stdin);
 		switch(choice)
 		{
 			case 1:
 				printf("Enter your user name: ");
-				scanf(" %[^\n]%*c", inputUser);
+//				scanf(" %[^\n]%*c", inputUser);
+				gets(inputUser);
 				printf("Enter your user password: ");
-				scanf(" %[^\n]%*c", inputPassword);
+				gets(inputPassword);
+//				scanf(" %[^\n]%*c", inputPassword);
 				
 				if(strcmp(inputUser,user) == 0 && strcmp(inputPassword,password) == 0)
 				{
