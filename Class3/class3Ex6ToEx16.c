@@ -267,7 +267,7 @@ void calMulti2DimensionMatrix()
 
 // ex14  sort array
 
-void selectedSort()
+void selectionSort()
 {
 	int arr[11] = {1,5,3,4,2,6,8,7,10,9,10};
 	int i, j;
@@ -298,7 +298,7 @@ void selectedSort()
 
 void bubbleSort()
 {
-	int arr[11] = {2,5,3,4,1,6,8,7,10,11,10};
+	int arr[11] = {1,5,3,4,2,6,8,7,10,9,10};
 	int i, j;
 
 	for( i = 0; i < 11 ; i++ )
@@ -316,7 +316,7 @@ void bubbleSort()
 	
 	for( i = 0; i < 11; i++)
 	{
-		printf(" %d ", arr[i]);
+		printf("%d ", arr[i]);
 	}
 	printf("\n");
 }
@@ -338,18 +338,24 @@ void findLongestName()
 		printf("Enter the %d name: ", i+1);
 		gets(name);
 		strcpy(nameList[i], name);
-		printf("%s \n", nameList[i]);
+//		printf("%s \n", nameList[i]);
 		fflush(stdin);
 	}
+
 
 	for ( j = 0; j < 5; j++)
 	{
 		lengthList[j] = strlen(nameList[j]);
 	}
+//	for ( j = 0; j < 5; j++)
+//	{
+//		printf("%d \n", lengthList[j]);
+//	}
+	
+	longestIndex = 0;
+	longestLength  = lengthList[0];
 	for ( j = 0; j < 5; j++)
 	{
-		longestLength  = lengthList[j];
-		longestIndex = j;
 		if(lengthList[j] > longestLength)
 		{
 			longestLength = lengthList[j] ;
@@ -367,8 +373,7 @@ void sortByAlphaBet()
 	char name[30];
 	int i, j ;
 	char firstChar[5];
-	int indexOrder[5];
-	
+	int mapFirstCharAndIndex[5][2];
 	
 	// get name from user input
 	for ( i = 0; i < 5 ; i++)
@@ -376,39 +381,53 @@ void sortByAlphaBet()
 		printf("Enter the %d name: ", i+1);
 		gets(name);
 		strcpy(nameList[i], name);
-		printf("%s \n", nameList[i]);
+//		printf("%s \n", nameList[i]);
 		fflush(stdin);
 	}
 	
 	// make an array of char represent for first character in those name that was entered
+	
 	for( i = 0; i < 5; i++)
 	{
 		firstChar[i] = tolower(nameList[i][0]);
 	}
 	
-	// sort the char array by selected sort and put it to an array by order
 	for( i = 0; i < 5; i++)
 	{
-		char min = firstChar[i];
-		int tempIndex = i;
+		mapFirstCharAndIndex[i][0] = firstChar[i];
+		mapFirstCharAndIndex[i][1] = i;
+	}
+	
+	// sort the char array by selected sort and put it to an array by order
+	int minIndex, tempIndex;
+	char minChar;
+	for( i = 0; i < 5; i++)
+	{
+		minChar = mapFirstCharAndIndex[i][0];
+		minIndex = mapFirstCharAndIndex[i][1];
+		tempIndex = i;
 		
 		for (j = i + 1; j < 5; j++ )
 		{
-			if( firstChar[j] < min)
+			if( mapFirstCharAndIndex[j][0] < minChar)
 				{
-					min = firstChar[j];
+					minChar = mapFirstCharAndIndex[j][0];
+					minIndex = mapFirstCharAndIndex[j][1];
 					tempIndex = j;
 				} 
 		}
-		indexOrder[i] = tempIndex;
-		firstChar[tempIndex] = firstChar[i];
-		firstChar[i] = min;
+		mapFirstCharAndIndex[tempIndex][0] = mapFirstCharAndIndex[i][0];
+		mapFirstCharAndIndex[i][0] = minChar;
+		
+		mapFirstCharAndIndex[tempIndex][1] = mapFirstCharAndIndex[i][1];
+		mapFirstCharAndIndex[i][1] = minIndex;
+		
 	}
 	
+	printf("Ordered: -------------------------------- \n");
 	for( i = 0; i < 5; i++)
 	{
-		printf("%d ", indexOrder[i]);
-		printf("%s \n", nameList[indexOrder[i]]);
+		printf("%s \n", nameList[mapFirstCharAndIndex[i][1]]);
 	}
 	
 }
@@ -482,7 +501,7 @@ int main()
 				calMulti2DimensionMatrix();
 				break;
 			case 14:
-				selectedSort();
+				selectionSort();
 				bubbleSort();
 				break;
 			case 15:
@@ -495,7 +514,7 @@ int main()
 				isRunning = 0;
 				break;
 			default:
-				printf("Wrong input, please enter from 1 - 20 or 0 to exit! \n");
+				printf("Wrong input, please enter from 1 - 16 or 0 to exit! \n");
 				break;
 		}
 	}
