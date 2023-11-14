@@ -17,17 +17,18 @@ void menu()
 {
 	printf("\n");
 	printf("\n");
-	printf("   ===========MENU===========   ");
-	printf("\n|1. Add new Product           |");
-	printf("\n|2. List all Product          |");	
-	printf("\n|3. Find Product by price     |");
-	printf("\n|4. Find Product by name      |");
-	printf("\n|5. Sort by name              |");	
-	printf("\n|6. Sort by price             |");	
-	printf("\n|7. Update Product by ID      |");	
-	printf("\n|8. Delete a Product from list|");	
-	printf("\n|0. Exit                      |");
-	printf("\n   ===========END===========  ");
+	printf("   =============MENU=============   ");
+	printf("\n|1. Add new Product               |");
+	printf("\n|2. List all Product              |");	
+	printf("\n|3. Find Product by price         |");
+	printf("\n|4. Find Product by name          |");
+	printf("\n|5. Sort by name                  |");	
+	printf("\n|6. Sort by price                 |");	
+	printf("\n|7. Update Product by ID          |");	
+	printf("\n|8. Delete a Product from list    |");
+	printf("\n|9. Find Product by exactly name  |");		
+	printf("\n|0. Exit                          |");
+	printf("\n   =============END=============  ");
 	printf("\n");
 }
 
@@ -135,6 +136,40 @@ void findProductByName(struct Product listProduct[], int currentQuantity) {
 	int i = 0;
 	for( i = 0; i < currentQuantity; i++) {
 		if (strcmp(searchName, listProduct[i].name) == 0){
+			printf("\nId: %d || Name: %s || Type: %s || Price: %lf", listProduct[i].id, listProduct[i].name, listProduct[i].type, listProduct[i].price);
+			numberOfResult++;
+		}
+	}
+	if(numberOfResult == 0) {
+		printf("\nThere no product name that match your search");
+	}
+}
+
+void findProductByNameLike(struct Product listProduct[], int currentQuantity) {
+	if(currentQuantity == 0) {
+		printf("\nThere no product in list now!");
+		return;
+	} 
+	char searchName[50];
+//	struct Product listProductByName[currentQuantity];
+	int numberOfResult = 0;
+	printf("\nPlease enter the name that you want to find: ");
+	fflush(stdin);
+	gets(searchName);
+	int i = 0;
+	int j = 0;
+	for( i = 0; i < currentQuantity; i++) {
+		char checkingName[strlen(listProduct[i].name)];
+		char searchNameLower[strlen(searchName)];
+		for (j =0; j < strlen(listProduct[i].name); j++) {
+			checkingName[j] = tolower(listProduct[i].name[j]);
+		}
+		for (j =0; j < strlen(searchName); j++) {
+			searchNameLower[j] = tolower(searchName[j]);
+		}	
+//		terminate trash after the string
+		searchNameLower[j] = '\0';	
+		if (strstr(checkingName, searchNameLower) != NULL){
 			printf("\nId: %d || Name: %s || Type: %s || Price: %lf", listProduct[i].id, listProduct[i].name, listProduct[i].type, listProduct[i].price);
 			numberOfResult++;
 		}
@@ -289,6 +324,27 @@ void deleteById(struct Product *listProduct, int *currentQuantity) {
 		}
 }
 
+
+void saveProductToFile(struct Product product, int currentQuantity, int currentId) {
+	FILE *pFile = fopen("product.txt", "a");
+	FILE *pFileStats = fopen("stats", "w");
+	int i = 0;
+	if (pFile != NULL) {
+		printf("\nCreate file successfully");
+		fprintf(pFileStats, "currentQuantity: %d\ncurrentId%d\n", currentQuantity, currentId);
+		fwrite(&product, sizeof(product), 1,pFile);
+		fclose(pFile);
+	}
+}
+
+//void loadFile() {
+//	FILE *pFile = fopen("product.txt", "a");
+//	int i = 0;
+//	if (pFile != NULL) {
+//		fscanf
+//	}
+//}
+
 int main() 
 {
 	struct Product productList[QUANTITY];
@@ -302,7 +358,7 @@ int main()
 		fflush(stdin);
 //		scanf("%d", &choice);
 		if (scanf("%d", &choice) != 1) {
-            printf("\nInvalid choice, please enter a number from 0 - 8");
+            printf("\nInvalid choice, please enter a number from 0 - 9");
             continue;
         }
 		
@@ -317,7 +373,7 @@ int main()
 				findProductByPrice(productList, currentQuantity);
 				break;
 			case 4:
-				findProductByName(productList, currentQuantity);
+				findProductByNameLike(productList, currentQuantity);
 				break;
 			case 5:
 				sortByName(productList, currentQuantity);
@@ -334,11 +390,14 @@ int main()
 				deleteById(productList, &currentQuantity);
 				printf("\n current quantity: %d", currentQuantity);
 				break;
+			case 9:
+				findProductByName(productList, currentQuantity);
+				break;
 			case 0:
 				running = 0;
 				break;
 			default:
-				printf("\nInvalid choice, please enter a number from 0 - 8");
+				printf("\nInvalid choice, please enter a number from 0 - 9");
 				break;
 		}
 	}	
