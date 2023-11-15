@@ -1,0 +1,2 @@
+currentQuantity: 1
+currentId: 1

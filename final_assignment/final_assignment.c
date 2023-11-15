@@ -21,16 +21,67 @@ void menu()
 	printf("\n|1. Add new Product               |");
 	printf("\n|2. List all Product              |");	
 	printf("\n|3. Find Product by price         |");
-	printf("\n|4. Find Product by name          |");
-	printf("\n|5. Sort by name                  |");	
-	printf("\n|6. Sort by price                 |");	
-	printf("\n|7. Update Product by ID          |");	
-	printf("\n|8. Delete a Product from list    |");
-	printf("\n|9. Find Product by exactly name  |");		
+	printf("\n|4. Find by approximate name      |");
+	printf("\n|5. Find Product by exactly name  |");	
+	printf("\n|6. Sort by name                  |");	
+	printf("\n|7. Sort by price                 |");	
+	printf("\n|8. Update Product by ID          |");
+	printf("\n|9. Delete a Product from list    |");		
 	printf("\n|0. Exit                          |");
 	printf("\n   =============END=============  ");
 	printf("\n");
 }
+
+void saveProductToFile(struct Product product, int currentQuantity, int currentId) {
+	FILE *pFile = fopen("product.txt", "a");
+	FILE *pFileQuantity = fopen("quantity.txt", "w");
+	FILE *pFileId = fopen("id.txt", "w");
+	int i = 0;
+	if (pFile != NULL && pFileQuantity != NULL && pFileId != NULL) {
+//		printf("\nOpen file successfully");
+		fwrite(&product, sizeof(product), 1,pFile);
+		fprintf(pFileQuantity, "%d", currentQuantity);
+		fprintf(pFileId, "%d", currentId);
+		fclose(pFile);
+		fclose(pFileQuantity);
+		fclose(pFileId);
+		printf("\nSave product successfully!");
+	}
+}
+
+void updateProductListToFile(struct Product *listProduct, int currentQuantity) {
+	FILE *pFile = fopen("product.txt", "w");
+	FILE *pFileQuantity = fopen("quantity.txt", "w");
+	int i = 0;
+	if (pFile != NULL && pFileQuantity != NULL) {
+//		printf("\nOpen file successfully");
+		fprintf(pFileQuantity, "%d", currentQuantity);
+//		for ( i = 0; i < currentQuantity; i++) {
+//			fwrite(&listProduct[i], sizeof(listProduct[i]), 1, pFile);
+//		}
+		fwrite(listProduct, sizeof(listProduct[0]), currentQuantity, pFile);
+		fclose(pFile);
+		fclose(pFileQuantity);
+	}
+}
+
+void loadFile(struct Product* listProduct, int *currentQuantity, int *currentId) {
+	FILE *pFile = fopen("product.txt", "r");
+	FILE *pFileQuantity = fopen("quantity.txt", "r");
+	FILE *pFileId = fopen("id.txt", "r");
+	int i = 0;
+	if (pFile != NULL && pFileQuantity != NULL && pFileId != NULL) {
+		fscanf(pFileQuantity,"%d", currentQuantity);
+		fscanf(pFileId,"%d", currentId);
+		fread(listProduct, sizeof(struct Product), *currentQuantity, pFile);
+		fclose(pFile);
+		fclose(pFileQuantity);
+		fclose(pFileId);
+//		printf("%d %d", *currentQuantity, *currentId);
+		printf("\nLoad data successfully!");
+	}
+}
+
 
 struct Product inputProduct() {
 	struct Product product;
@@ -79,6 +130,7 @@ void addNewProduct(struct Product* newProduct, int *currentQuantity, int *curren
 		(*currentQuantity)++;
 		(*currentId)++;
 		printf("Added succesfully!");
+		saveProductToFile(*newProduct, *currentQuantity, *currentId);
 	} else {
 		printf("Canceled!");
 	}
@@ -151,24 +203,29 @@ void findProductByNameLike(struct Product listProduct[], int currentQuantity) {
 		return;
 	} 
 	char searchName[50];
-//	struct Product listProductByName[currentQuantity];
 	int numberOfResult = 0;
+	int i = 0;
+	int j = 0;
 	printf("\nPlease enter the name that you want to find: ");
 	fflush(stdin);
 	gets(searchName);
-	int i = 0;
-	int j = 0;
+	char searchNameLower[strlen(searchName) + 1];
+	for (j =0; j < strlen(searchName); j++) {
+		searchNameLower[j] = tolower(searchName[j]);
+	}
+	searchNameLower[j] = '\0';
 	for( i = 0; i < currentQuantity; i++) {
-		char checkingName[strlen(listProduct[i].name)];
-		char searchNameLower[strlen(searchName)];
+//		printf(">[%s]<\n", searchNameLower);
+		char checkingName[strlen(listProduct[i].name)+1];
+//		printf("\n \n ");
 		for (j =0; j < strlen(listProduct[i].name); j++) {
 			checkingName[j] = tolower(listProduct[i].name[j]);
+//			printf("%c",checkingName[j]);
 		}
-		for (j =0; j < strlen(searchName); j++) {
-			searchNameLower[j] = tolower(searchName[j]);
-		}	
+		checkingName[j] = '\0';
+//		printf("\n[%s =", checkingName);
 //		terminate trash after the string
-		searchNameLower[j] = '\0';	
+//		printf("[%s ? %s]\n", checkingName, searchNameLower);
 		if (strstr(checkingName, searchNameLower) != NULL){
 			printf("\nId: %d || Name: %s || Type: %s || Price: %lf", listProduct[i].id, listProduct[i].name, listProduct[i].type, listProduct[i].price);
 			numberOfResult++;
@@ -277,6 +334,7 @@ void updateById(struct Product *listProduct, int currentQuantity) {
 			strcpy(listProduct[i].name, editProduct.name);
 			strcpy(listProduct[i].type, editProduct.type);
 			printf("Edit successfully!");
+			updateProductListToFile(listProduct, currentQuantity);
 		} else {
 			printf("\nCanceled!");
 		}
@@ -319,31 +377,13 @@ void deleteById(struct Product *listProduct, int *currentQuantity) {
 		strcpy(tempPtr -> type, "");
 		(*currentQuantity)--;
 		printf("Delete successfully!");
+		updateProductListToFile(listProduct, *currentQuantity);
 	}  else {
 			printf("\nCanceled!");
 		}
 }
 
 
-void saveProductToFile(struct Product product, int currentQuantity, int currentId) {
-	FILE *pFile = fopen("product.txt", "a");
-	FILE *pFileStats = fopen("stats", "w");
-	int i = 0;
-	if (pFile != NULL) {
-		printf("\nCreate file successfully");
-		fprintf(pFileStats, "currentQuantity: %d\ncurrentId%d\n", currentQuantity, currentId);
-		fwrite(&product, sizeof(product), 1,pFile);
-		fclose(pFile);
-	}
-}
-
-//void loadFile() {
-//	FILE *pFile = fopen("product.txt", "a");
-//	int i = 0;
-//	if (pFile != NULL) {
-//		fscanf
-//	}
-//}
 
 int main() 
 {
@@ -352,6 +392,7 @@ int main()
 	int currentId = 0;
 	int running = 1;
 	int choice = 0;
+	loadFile(productList, &currentQuantity, &currentId);
 	while(running){
 		menu();
 		printf("\nEnter your choice: ");
@@ -375,23 +416,23 @@ int main()
 			case 4:
 				findProductByNameLike(productList, currentQuantity);
 				break;
-			case 5:
+			case 5:	
+				findProductByName(productList, currentQuantity);
+				break;
+			case 6:
 				sortByName(productList, currentQuantity);
 				printfListProduct(productList, currentQuantity);
 				break;
-			case 6:
+			case 7:
 				sortByPrice(productList, currentQuantity);
 				printfListProduct(productList, currentQuantity);
 				break;
-			case 7:
+			case 8:
 				updateById(productList, currentQuantity);
 				break;
-			case 8:
+			case 9:
 				deleteById(productList, &currentQuantity);
 				printf("\n current quantity: %d", currentQuantity);
-				break;
-			case 9:
-				findProductByName(productList, currentQuantity);
 				break;
 			case 0:
 				running = 0;
